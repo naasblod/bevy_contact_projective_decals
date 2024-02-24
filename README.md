@@ -37,13 +37,12 @@ fn main() {
 }
 ```
 
-Text:
+Spawning:
 ```rs
 commands.spawn(DecalBundle {
     spatial_bundle: SpatialBundle::from_transform(Transform::default()),
     standard_material: materials.add(StandardMaterial {
         base_color_texture: Some(asset_server.load("my_texture.png")),
-        base_color: color,
         alpha_mode: AlphaMode::Blend,
         ..default()
     }),
