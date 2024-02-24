@@ -1,0 +1,13 @@
+[package]
+name = "bevy_contact_projective-decals"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.13.0"
+
+[dev-dependencies]
+bevy_panorbit_camera = "0.14.0"
+rand = "0.8.5"
