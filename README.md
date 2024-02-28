@@ -19,7 +19,7 @@ In it's current state I think it's usable for fixed angle cameras since the effe
 
 ## Bevy Compatibility
 This is not up on crates.io right now. Use 
-`bevy_contact_projective_decals = { git = "https://https://github.com/naasblod/bevy_contact_projective_decals.git", branch = "main" }`
+`bevy_contact_projective_decals = { git = "https://github.com/naasblod/bevy_contact_projective_decals.git", branch = "main" }`
 
 | Bevy Version | Crate Version |
 |--------------|---------------|
