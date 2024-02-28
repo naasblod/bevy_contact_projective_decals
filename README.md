@@ -5,7 +5,7 @@ Based on Alexander Sannikovs talk on the rendering techniques of Path of Exile 2
 
 ### !WARNING!
 * This is a work in progress
-* Currently requires the camera angle to be fixed to avoid distortions, (check the example for a visual and use left_moue and scroll to see the effect)
+* Currently requires the camera angle to be fixed to avoid distortions, (check the example (uses bevy_panorbit_camera) for a visual and use left_mouse and scroll to see the effect)
 * I might change up the api a bit. But I sort of like this simple api for my use case.
 
 Open for any and all issues and pull requests
@@ -37,13 +37,12 @@ fn main() {
 }
 ```
 
-Text:
+Spawning:
 ```rs
 commands.spawn(DecalBundle {
     spatial_bundle: SpatialBundle::from_transform(Transform::default()),
     standard_material: materials.add(StandardMaterial {
         base_color_texture: Some(asset_server.load("my_texture.png")),
-        base_color: color,
         alpha_mode: AlphaMode::Blend,
         ..default()
     }),
