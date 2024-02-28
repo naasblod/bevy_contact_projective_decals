@@ -1,4 +1,5 @@
 use bevy::{
+    asset::embedded_asset,
     math::primitives::Rectangle,
     pbr::{ExtendedMaterial, MaterialExtension, MaterialExtensionKey, MaterialExtensionPipeline},
     prelude::*,
@@ -14,6 +15,7 @@ use bevy::{
 pub struct DecalPlugin;
 impl Plugin for DecalPlugin {
     fn build(&self, app: &mut App) {
+        embedded_asset!(app, "decal.wgsl");
         app.add_plugins(
             MaterialPlugin::<ExtendedMaterial<StandardMaterial, DecalMaterial>> {
                 prepass_enabled: false,
@@ -93,7 +95,7 @@ fn update_center_position(
 /// You only need to implement functions for features that need non-default behavior. See the Material api docs for details!
 impl MaterialExtension for DecalMaterial {
     fn fragment_shader() -> ShaderRef {
-        "decal.wgsl".into()
+        "embedded://bevy_contact_projective_decals/decal.wgsl".into()
     }
 
     fn specialize(
