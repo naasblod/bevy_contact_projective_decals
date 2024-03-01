@@ -5,7 +5,6 @@ Based on Alexander Sannikovs talk on the rendering techniques of Path of Exile 2
 
 ### !WARNING!
 * This is a work in progress
-* I might change up the api a bit. But I sort of like this simple api for my use case.
 * Due to the nature of this technique looking at the decal from very steep angles will cause distortion, this can be mitigated by creating textures that are bigger than the effect, maybe the actual bullet hole in your decal is 16x16px then your image could be 32x32px or something like that.
 
 Open for any and all issues and pull requests
@@ -47,9 +46,6 @@ commands.spawn(DecalBundle {
     ..default()
 });
 ```
-
-### todos:
-* maybe the api is very bad. I don't know.
 
 Super big thanks to NiseVoid and Griffin
 
