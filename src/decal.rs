@@ -76,11 +76,12 @@ fn create_decals(
                         depth_fade_factor: 8.0,
                     },
                 });
-            commands
-                .entity(entity)
-                .insert(meshes.quad.clone())
-                .remove::<Handle<StandardMaterial>>()
-                .insert(decal_handle);
+            if let Some(mut entity_commands) = commands.get_entity(entity) {
+                entity_commands
+                    .insert(meshes.quad.clone())
+                    .remove::<Handle<StandardMaterial>>()
+                    .try_insert(decal_handle);
+            }
         }
     }
 }
