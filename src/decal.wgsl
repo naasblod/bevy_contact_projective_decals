@@ -79,5 +79,7 @@ fn fragment(in: VertexOutput,
 
     var alpha = min(clamp(1.0 - normal_depth * custom_material.depth_fade_factor, 0.0, 1.0), out.color.a);
 
-    return vec4(out.color.rgb, alpha);
+    //return vec4(out.color.rgb, alpha);
+    return vec4(vec3(normal_depth), 1.0);
+    //return vec4(out.color.rgb, 1.0);
 }
