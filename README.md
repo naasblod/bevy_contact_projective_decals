@@ -37,13 +37,13 @@ fn main() {
 Spawning:
 ```rs
 commands.spawn(DecalBundle {
-    transform: Transform::from_xyz(x, 0.0, z),
+    transform: Transform::from_xyz(x, y, z),
     decal_material: decal_materials.add(ExtendedMaterial::<
         StandardMaterial,
         DecalMaterial,
     > {
         base: StandardMaterial {
-            base_color_texture: Some(asset_server.load(*decal_str.unwrap())),
+            base_color_texture: Some(asset_server.load("my_decal.png"))),
             base_color: color,
             alpha_mode: AlphaMode::Blend,
             ..default()
