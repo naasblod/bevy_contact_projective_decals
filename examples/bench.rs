@@ -23,14 +23,7 @@ fn main() {
         ))
         .register_diagnostic(Diagnostic::new(DECAL_COUNT))
         .add_systems(Startup, (setup, setup_diagnostic))
-        .add_systems(
-            Update,
-            (
-                spawn_decals.after(decal_cleanup),
-                decal_cleanup,
-                thing_count,
-            ),
-        )
+        .add_systems(Update, (spawn_decals, thing_count))
         .run();
 }
 
@@ -89,18 +82,6 @@ fn spawn_decals(
             mesh: meshes.add(decal_mesh_quad(Vec2::splat(scale))),
             ..default()
         });
-    }
-}
-fn decal_cleanup(mut commands: Commands, query: Query<Entity, With<Decal>>) {
-    let max = 1000000;
-    let mut amount_to_delete: i32 = query.iter().len() as i32 - max;
-
-    while amount_to_delete > 0 {
-        let index = thread_rng().gen_range(0..(max - 1));
-
-        let entity = query.iter().collect::<Vec<Entity>>()[index as usize];
-        commands.entity(entity).despawn_recursive();
-        amount_to_delete -= 1;
     }
 }
 
