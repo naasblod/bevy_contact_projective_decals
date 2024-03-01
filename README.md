@@ -16,7 +16,7 @@ The depth test is disabled so that decals that intersect with other geometry can
 
 ## Bevy Compatibility
 This is not up on crates.io right now. Use 
-`bevy_contact_projective_decals = { git = "https://https://github.com/naasblod/bevy_contact_projective_decals.git", branch = "main" }`
+`bevy_contact_projective_decals = { git = "https://github.com/naasblod/bevy_contact_projective_decals.git", branch = "main" }`
 
 | Bevy Version | Crate Version |
 |--------------|---------------|
