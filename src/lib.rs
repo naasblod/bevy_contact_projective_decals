@@ -1,2 +1,2 @@
 mod decal;
-pub use decal::{Decal, DecalBundle, DecalMaterial, DecalPlugin};
+pub use decal::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};

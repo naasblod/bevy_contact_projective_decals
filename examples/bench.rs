@@ -1,31 +1,63 @@
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
+use bevy_screen_diagnostics::{
+    Aggregate, ScreenDiagnostics, ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
+};
 use std::time::Duration;
 
-use bevy::{core_pipeline::prepass::DepthPrepass, prelude::*};
-use bevy_contact_projective_decals::{Decal, DecalBundle, DecalPlugin};
+use bevy::{
+    core_pipeline::prepass::DepthPrepass,
+    diagnostic::{Diagnostic, DiagnosticPath, Diagnostics, RegisterDiagnostic},
+    pbr::ExtendedMaterial,
+    prelude::*,
+};
+use bevy_contact_projective_decals::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};
 use rand::{seq::SliceRandom, thread_rng, Rng};
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, DecalPlugin, PanOrbitCameraPlugin))
-        .add_systems(Startup, setup)
-        .add_systems(Update, (spawn_decals.after(decal_cleanup), decal_cleanup))
+        .add_plugins((
+            DefaultPlugins,
+            DecalPlugin,
+            PanOrbitCameraPlugin,
+            ScreenDiagnosticsPlugin::default(),
+            ScreenFrameDiagnosticsPlugin,
+        ))
+        .register_diagnostic(Diagnostic::new(DECAL_COUNT))
+        .add_systems(Startup, (setup, setup_diagnostic))
+        .add_systems(
+            Update,
+            (
+                spawn_decals.after(decal_cleanup),
+                decal_cleanup,
+                thing_count,
+            ),
+        )
         .run();
 }
 
+#[allow(clippy::too_many_arguments)]
 fn spawn_decals(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut decal_materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
     mut local_timer: Local<Timer>,
+    input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
+    mut spawn: Local<bool>,
 ) {
     if local_timer.duration() == Duration::ZERO {
         local_timer.set_duration(Duration::from_secs_f32(0.01));
         local_timer.set_mode(TimerMode::Repeating);
     }
+    if input.just_pressed(KeyCode::Space) {
+        *spawn = !*spawn;
+    }
+    if !*spawn {
+        return;
+    }
     local_timer.tick(time.delta());
 
-    if local_timer.finished() {
+    for _ in 0..local_timer.times_finished_this_tick() {
         let x = thread_rng().gen_range(-5.0..5.0);
         let z = thread_rng().gen_range(-5.0..5.0);
         let decal_str =
@@ -39,13 +71,22 @@ fn spawn_decals(
         };
         let scale = thread_rng().gen();
         commands.spawn(DecalBundle {
-            transform: Transform::from_xyz(x, 0.0, z).with_scale(Vec3::splat(scale)),
-            standard_material: materials.add(StandardMaterial {
-                base_color_texture: Some(asset_server.load(*decal_str.unwrap())),
-                base_color: color,
-                alpha_mode: AlphaMode::Blend,
-                ..default()
+            transform: Transform::from_xyz(x, 0.0, z),
+            decal_material: decal_materials.add(ExtendedMaterial::<
+                StandardMaterial,
+                DecalMaterial,
+            > {
+                base: StandardMaterial {
+                    base_color_texture: Some(asset_server.load(*decal_str.unwrap())),
+                    base_color: color,
+                    alpha_mode: AlphaMode::Blend,
+                    ..default()
+                },
+                extension: DecalMaterial {
+                    depth_fade_factor: 8.0,
+                },
             }),
+            mesh: meshes.add(decal_mesh_quad(Vec2::splat(scale))),
             ..default()
         });
     }
@@ -69,6 +110,13 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    commands.spawn((TextBundle::from_section(
+        "Press space to start / stop.\nDrag mouse to pan, scroll to zoom",
+        TextStyle {
+            font_size: 25.,
+            ..default()
+        },
+    ),));
     commands.spawn(PbrBundle {
         mesh: meshes.add(Rectangle::new(10.0, 10.0)),
         material: materials.add(Color::WHITE),
@@ -120,4 +168,18 @@ fn setup(
         PanOrbitCamera::default(),
         DepthPrepass,
     ));
+}
+const DECAL_COUNT: DiagnosticPath = DiagnosticPath::const_new("decal_count");
+fn setup_diagnostic(mut onscreen: ResMut<ScreenDiagnostics>) {
+    onscreen
+        .add("decals".to_string(), DECAL_COUNT)
+        .aggregate(Aggregate::Value)
+        .format(|v| format!("{v:.0}"));
+}
+
+fn thing_count(
+    mut diagnostics: Diagnostics,
+    parts: Query<&Handle<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
+) {
+    diagnostics.add_measurement(&DECAL_COUNT, || parts.iter().len() as f64);
 }

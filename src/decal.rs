@@ -24,25 +24,17 @@ impl Plugin for DecalPlugin {
                 prepass_enabled: false,
                 ..default()
             },
-        )
-        .add_systems(Startup, setup_mesh_handle)
-        .add_systems(Update, create_decals);
+        );
     }
 }
 
-#[derive(Resource)]
-struct MeshHandle {
-    quad: Handle<Mesh>,
-}
-
-fn setup_mesh_handle(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
-    let mut mesh: Mesh = Rectangle::new(1.0, 1.0).into();
+pub fn decal_mesh_quad(size: Vec2) -> Mesh {
+    let mut mesh: Mesh = Rectangle::from_size(size).into();
     mesh = mesh
         .with_generated_tangents()
         .unwrap()
         .rotated_by(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2));
-    let mesh_handle = meshes.add(mesh);
-    commands.insert_resource(MeshHandle { quad: mesh_handle });
+    mesh
 }
 
 #[derive(Bundle, Default)]
@@ -52,38 +44,9 @@ pub struct DecalBundle {
     pub view_visibility: ViewVisibility,
     pub transform: Transform,
     pub global_transform: GlobalTransform,
-    pub standard_material: Handle<StandardMaterial>,
-    pub decal: Decal,
+    pub decal_material: Handle<ExtendedMaterial<StandardMaterial, DecalMaterial>>,
+    pub mesh: Handle<Mesh>,
     pub not_shadow_caster: NotShadowCaster,
-}
-
-#[derive(Component, Default)]
-pub struct Decal;
-
-fn create_decals(
-    mut commands: Commands,
-    query: Query<(Entity, &Handle<StandardMaterial>), Added<Decal>>,
-    materials: Res<Assets<StandardMaterial>>,
-    meshes: Res<MeshHandle>,
-    mut decal_extended_material: ResMut<Assets<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
-) {
-    for (entity, standard_material) in &query {
-        if let Some(material) = materials.get(standard_material) {
-            let decal_handle =
-                decal_extended_material.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
-                    base: material.clone(),
-                    extension: DecalMaterial {
-                        depth_fade_factor: 8.0,
-                    },
-                });
-            if let Some(mut entity_commands) = commands.get_entity(entity) {
-                entity_commands
-                    .insert(meshes.quad.clone())
-                    .remove::<Handle<StandardMaterial>>()
-                    .try_insert(decal_handle);
-            }
-        }
-    }
 }
 
 /// The Material trait is very configurable, but comes with sensible defaults for all methods.

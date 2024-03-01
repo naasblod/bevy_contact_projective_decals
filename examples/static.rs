@@ -1,5 +1,5 @@
-use bevy::{core_pipeline::prepass::DepthPrepass, prelude::*};
-use bevy_contact_projective_decals::{DecalBundle, DecalPlugin};
+use bevy::{core_pipeline::prepass::DepthPrepass, pbr::ExtendedMaterial, prelude::*};
+use bevy_contact_projective_decals::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 use rand::{thread_rng, Rng};
 fn main() {
@@ -27,6 +27,7 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut decal_materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
     asset_server: Res<AssetServer>,
 ) {
     commands.spawn(PbrBundle {
@@ -74,12 +75,18 @@ fn setup(
 
     commands.spawn(DecalBundle {
         transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        standard_material: materials.add(StandardMaterial {
-            base_color_texture: Some(asset_server.load("blast.png")),
-            base_color: Color::RED,
-            alpha_mode: AlphaMode::Blend,
-            ..default()
+        decal_material: decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
+            base: StandardMaterial {
+                base_color_texture: Some(asset_server.load("blast.png")),
+                base_color: Color::RED,
+                alpha_mode: AlphaMode::Blend,
+                ..default()
+            },
+            extension: DecalMaterial {
+                depth_fade_factor: 8.0,
+            },
         }),
+        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0))),
         ..default()
     });
     // camera
