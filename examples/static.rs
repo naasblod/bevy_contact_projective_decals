@@ -73,10 +73,10 @@ fn setup(
     });
 
     commands.spawn(DecalBundle {
-        spatial_bundle: SpatialBundle::from_transform(Transform::from_xyz(0.0, 0.0, 0.0)),
+        transform: Transform::from_xyz(0.0, 0.0, 0.0),
         standard_material: materials.add(StandardMaterial {
-            base_color_texture: Some(asset_server.load("UVCheckerMap01-512.png")),
-            base_color: Color::WHITE,
+            base_color_texture: Some(asset_server.load("blast.png")),
+            base_color: Color::RED,
             alpha_mode: AlphaMode::Blend,
             ..default()
         }),

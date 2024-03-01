@@ -47,7 +47,11 @@ fn setup_mesh_handle(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 
 #[derive(Bundle, Default)]
 pub struct DecalBundle {
-    pub spatial_bundle: SpatialBundle,
+    pub visibility: Visibility,
+    pub inherited_visibility: InheritedVisibility,
+    pub view_visibility: ViewVisibility,
+    pub transform: Transform,
+    pub global_transform: GlobalTransform,
     pub standard_material: Handle<StandardMaterial>,
     pub decal: Decal,
     pub not_shadow_caster: NotShadowCaster,
