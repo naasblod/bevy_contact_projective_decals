@@ -1,7 +1,10 @@
 use bevy::{
     asset::embedded_asset,
     math::primitives::Rectangle,
-    pbr::{ExtendedMaterial, MaterialExtension, MaterialExtensionKey, MaterialExtensionPipeline},
+    pbr::{
+        ExtendedMaterial, MaterialExtension, MaterialExtensionKey, MaterialExtensionPipeline,
+        NotShadowCaster,
+    },
     prelude::*,
     render::{
         mesh::MeshVertexBufferLayout,
@@ -23,7 +26,7 @@ impl Plugin for DecalPlugin {
             },
         )
         .add_systems(Startup, setup_mesh_handle)
-        .add_systems(Update, (update_center_position, create_decals));
+        .add_systems(Update, create_decals);
     }
 }
 
@@ -47,6 +50,7 @@ pub struct DecalBundle {
     pub spatial_bundle: SpatialBundle,
     pub standard_material: Handle<StandardMaterial>,
     pub decal: Decal,
+    pub not_shadow_caster: NotShadowCaster,
 }
 
 #[derive(Component, Default)]
@@ -54,18 +58,18 @@ pub struct Decal;
 
 fn create_decals(
     mut commands: Commands,
-    query: Query<(Entity, &GlobalTransform, &Handle<StandardMaterial>), Added<Decal>>,
+    query: Query<(Entity, &Handle<StandardMaterial>), Added<Decal>>,
     materials: Res<Assets<StandardMaterial>>,
     meshes: Res<MeshHandle>,
     mut decal_extended_material: ResMut<Assets<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
 ) {
-    for (entity, global_transform, standard_material) in &query {
+    for (entity, standard_material) in &query {
         if let Some(material) = materials.get(standard_material) {
             let decal_handle =
                 decal_extended_material.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
                     base: material.clone(),
                     extension: DecalMaterial {
-                        center_pos: global_transform.translation(),
+                        depth_fade_factor: 8.0,
                     },
                 });
             commands
@@ -73,20 +77,6 @@ fn create_decals(
                 .insert(meshes.quad.clone())
                 .remove::<Handle<StandardMaterial>>()
                 .insert(decal_handle);
-        }
-    }
-}
-
-fn update_center_position(
-    query: Query<(
-        &GlobalTransform,
-        &Handle<ExtendedMaterial<StandardMaterial, DecalMaterial>>,
-    )>,
-    mut materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
-) {
-    for (transform, handle) in &query {
-        if let Some(material) = materials.get_mut(handle) {
-            material.extension.center_pos = transform.translation();
         }
     }
 }
@@ -120,5 +110,12 @@ impl MaterialExtension for DecalMaterial {
 #[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
 pub struct DecalMaterial {
     #[uniform(200)]
-    pub center_pos: Vec3,
+    pub depth_fade_factor: f32,
+}
+impl Default for DecalMaterial {
+    fn default() -> Self {
+        Self {
+            depth_fade_factor: 8.0,
+        }
+    }
 }

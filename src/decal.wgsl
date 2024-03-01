@@ -20,8 +20,13 @@
 }
 #endif
 
+fn project_onto(lhs: vec3<f32>, rhs: vec3<f32>) -> vec3<f32> {
+    let other_len_sq_rcp = 1. / dot(rhs, rhs);
+    return rhs * dot(lhs, rhs) * other_len_sq_rcp;
+}
+
 struct CustomMaterial {
-    center_pos: vec3<f32>,
+    depth_fade_factor: f32,
 }
 @group(2) @binding(200)
 var<uniform> custom_material: CustomMaterial;
@@ -33,7 +38,7 @@ fn fragment(in: VertexOutput,
     let v_ray = view.world_position - in.world_position.xyz;
 
     // view vector
-    let V = normalize(v_ray) ;
+    let V = normalize(v_ray);
     let N = in.world_normal;
     let T = in.world_tangent.xyz;
     let B = in.world_tangent.w * cross(N, T);
@@ -46,31 +51,33 @@ fn fragment(in: VertexOutput,
     let diff_depth = frag_depth - depth_pass_depth;
     let diff_depth_abs = abs(diff_depth);
 
+
+    let contact_on_decal = project_onto(V * diff_depth - in.world_position.xyz, in.world_normal);
+    let normal_depth = length(contact_on_decal);
+
     var uv = in.uv;
     uv = parallaxed_uv(
-        diff_depth,
+        normal_depth,
         1.0,
         0u,
         uv,
         // Flip the direction of Vt to go toward the surface to make the
         // parallax mapping algorithm easier to understand and reason
         // about.
-        -Vt,
+        Vt,
     );
 
     var new_in = in;
     new_in.uv = uv;
 
     var pbr_input = pbr_input_from_standard_material(new_in, is_front);
-    pbr_input.material.base_color = alpha_discard(pbr_input.material, pbr_input.material.base_color);
-    pbr_input.world_position = vec4(in.world_position.xyz + (V * diff_depth_abs), depth_pass_depth);
+    pbr_input.world_position = vec4(in.world_position.xyz + V * diff_depth_abs, normal_depth);
 
     var out: FragmentOutput;
     out.color = apply_pbr_lighting(pbr_input);
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 
-    let fade_factor = 6.0;
-    var alpha = min(clamp(((1.0 - diff_depth_abs * fade_factor)), 0.0, 1.0), out.color.a);
+    var alpha = min(clamp(1.0 - normal_depth * custom_material.depth_fade_factor, 0.0, 1.0), out.color.a);
 
     return vec4(out.color.rgb, alpha);
 }
