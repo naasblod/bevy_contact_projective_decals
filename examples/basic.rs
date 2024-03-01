@@ -2,13 +2,13 @@ use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 use std::time::Duration;
 
 use bevy::{core_pipeline::prepass::DepthPrepass, prelude::*};
-use rand::{seq::SliceRandom, thread_rng, Rng};
 use bevy_contact_projective_decals::{Decal, DecalBundle, DecalPlugin};
+use rand::{seq::SliceRandom, thread_rng, Rng};
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, DecalPlugin, PanOrbitCameraPlugin))
         .add_systems(Startup, setup)
-        .add_systems(Update, (spawn_decals, decal_cleanup))
+        .add_systems(Update, (spawn_decals.after(decal_cleanup), decal_cleanup))
         .run();
 }
 
@@ -20,7 +20,7 @@ fn spawn_decals(
     time: Res<Time>,
 ) {
     if local_timer.duration() == Duration::ZERO {
-        local_timer.set_duration(Duration::from_secs_f32(0.1));
+        local_timer.set_duration(Duration::from_secs_f32(0.01));
         local_timer.set_mode(TimerMode::Repeating);
     }
     local_timer.tick(time.delta());
@@ -39,9 +39,7 @@ fn spawn_decals(
         };
         let scale = thread_rng().gen();
         commands.spawn(DecalBundle {
-            spatial_bundle: SpatialBundle::from_transform(
-                Transform::from_xyz(x, 0.0, z).with_scale(Vec3::splat(scale)),
-            ),
+            transform: Transform::from_xyz(x, 0.0, z).with_scale(Vec3::splat(scale)),
             standard_material: materials.add(StandardMaterial {
                 base_color_texture: Some(asset_server.load(*decal_str.unwrap())),
                 base_color: color,
@@ -53,7 +51,7 @@ fn spawn_decals(
     }
 }
 fn decal_cleanup(mut commands: Commands, query: Query<Entity, With<Decal>>) {
-    let max = 100;
+    let max = 1000000;
     let mut amount_to_delete: i32 = query.iter().len() as i32 - max;
 
     while amount_to_delete > 0 {
