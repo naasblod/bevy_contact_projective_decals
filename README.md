@@ -37,12 +37,22 @@ fn main() {
 Spawning:
 ```rs
 commands.spawn(DecalBundle {
-    spatial_bundle: SpatialBundle::from_transform(Transform::default()),
-    standard_material: materials.add(StandardMaterial {
-        base_color_texture: Some(asset_server.load("my_texture.png")),
-        alpha_mode: AlphaMode::Blend,
-        ..default()
+    transform: Transform::from_xyz(x, 0.0, z),
+    decal_material: decal_materials.add(ExtendedMaterial::<
+        StandardMaterial,
+        DecalMaterial,
+    > {
+        base: StandardMaterial {
+            base_color_texture: Some(asset_server.load(*decal_str.unwrap())),
+            base_color: color,
+            alpha_mode: AlphaMode::Blend,
+            ..default()
+        },
+        extension: DecalMaterial {
+            depth_fade_factor: 8.0,
+        },
     }),
+    mesh: meshes.add(decal_mesh_quad(Vec2::splat(scale))),
     ..default()
 });
 ```
