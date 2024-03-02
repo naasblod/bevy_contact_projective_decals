@@ -28,8 +28,8 @@ impl Plugin for DecalPlugin {
     }
 }
 /// A quad with specified size, rotated so that normal is facing Vec3::Y and generated tangents.
-pub fn decal_mesh_quad(size: Vec2, normal: Vec3) -> Mesh {
-    Rectangle::from_size(size)
+pub fn decal_mesh_quad(normal: Vec3) -> Mesh {
+    Rectangle::from_size(Vec2::ONE)
         .mesh()
         .rotated_by(Quat::from_rotation_arc(Vec3::Z, normal))
         .with_generated_tangents()
