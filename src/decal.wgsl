@@ -60,9 +60,6 @@ fn fragment(in: VertexOutput,
         1.0,
         0u,
         uv,
-        // Flip the direction of Vt to go toward the surface to make the
-        // parallax mapping algorithm easier to understand and reason
-        // about.
         Vt,
     );
 
