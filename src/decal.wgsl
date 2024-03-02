@@ -1,3 +1,5 @@
+#define_import_path bevy_contact_projective_decals::{DecalInformation, decalize}
+
 #import bevy_pbr::{
     mesh_view_bindings::view,
     pbr_fragment::pbr_input_from_standard_material,
@@ -28,12 +30,15 @@ fn project_onto(lhs: vec3<f32>, rhs: vec3<f32>) -> vec3<f32> {
 struct CustomMaterial {
     depth_fade_factor: f32,
 }
-@group(2) @binding(200)
-var<uniform> custom_material: CustomMaterial;
 
-@fragment
-fn fragment(in: VertexOutput,
-    @builtin(front_facing) is_front: bool) -> @location(0) vec4<f32> {
+struct DecalInformation {
+    deformed_uvs: vec2<f32>,
+    world_position: vec4<f32>,
+    depth_alpha: f32
+
+}
+
+fn decalize(in: VertexOutput, is_front: bool, depth_fade_factor: f32) -> DecalInformation {
 
     let v_ray = view.world_position - in.world_position.xyz;
     let model = bevy_pbr::mesh_functions::get_model_matrix(in.instance_index);
@@ -65,17 +70,30 @@ fn fragment(in: VertexOutput,
         Vt,
     );
 
+    var alpha = clamp(1.0 - normal_depth * custom_material.depth_fade_factor, 0.0, 1.0);
+    return DecalInformation(uv, vec4(in.world_position.xyz + V * diff_depth_abs, normal_depth), alpha);
+    //return vec4(out.color.rgb, alpha);
+}
+
+@group(2) @binding(200)
+var<uniform> custom_material: CustomMaterial;
+
+
+@fragment
+fn fragment(in: VertexOutput,
+    @builtin(front_facing) is_front: bool) -> @location(0) vec4<f32> {
+    let decal_info = decalize(in, is_front, custom_material.depth_fade_factor);
     var new_in = in;
-    new_in.uv = uv;
+    new_in.uv = decal_info.deformed_uvs;
 
     var pbr_input = pbr_input_from_standard_material(new_in, is_front);
-    pbr_input.world_position = vec4(in.world_position.xyz + V * diff_depth_abs, normal_depth);
+    pbr_input.world_position = decal_info.world_position;
 
     var out: FragmentOutput;
     out.color = apply_pbr_lighting(pbr_input);
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 
-    var alpha = min(clamp(1.0 - normal_depth * custom_material.depth_fade_factor, 0.0, 1.0), out.color.a);
+    var alpha = min(decal_info.depth_alpha, out.color.a);
 
     return vec4(out.color.rgb, alpha);
 }
