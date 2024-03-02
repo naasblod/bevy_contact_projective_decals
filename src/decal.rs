@@ -31,9 +31,9 @@ impl Plugin for DecalPlugin {
 pub fn decal_mesh_quad(size: Vec2, normal: Vec3) -> Mesh {
     Rectangle::from_size(size)
         .mesh()
+        .rotated_by(Quat::from_rotation_arc(Vec3::Z, normal))
         .with_generated_tangents()
         .unwrap()
-        .rotated_by(Quat::from_rotation_arc(Vec3::Z, normal))
 }
 /// Bundle containing what you need for a bundle, use [decal_mesh_quad] to generate the mesh.
 #[derive(Bundle, Default)]

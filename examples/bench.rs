@@ -79,7 +79,7 @@ fn spawn_decals(
                     depth_fade_factor: 8.0,
                 },
             }),
-            mesh: meshes.add(decal_mesh_quad(Vec2::splat(scale))),
+            mesh: meshes.add(decal_mesh_quad(Vec2::splat(scale), Vec3::Y)),
             ..default()
         });
     }

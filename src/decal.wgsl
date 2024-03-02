@@ -52,8 +52,8 @@ fn fragment(in: VertexOutput,
     let diff_depth_abs = abs(diff_depth);
 
 
-    let contact_on_decal = project_onto(V * diff_depth - in.world_position.xyz, in.world_normal);
-    let normal_depth = length(contact_on_decal);
+    let contact_on_decal = project_onto(V * diff_depth , in.world_normal);
+    let normal_depth = length(contact_on_decal) ; // issue is here I think
 
     var uv = in.uv;
     uv = parallaxed_uv(
@@ -79,7 +79,9 @@ fn fragment(in: VertexOutput,
 
     var alpha = min(clamp(1.0 - normal_depth * custom_material.depth_fade_factor, 0.0, 1.0), out.color.a);
 
-    //return vec4(out.color.rgb, alpha);
-    return vec4(vec3(normal_depth), 1.0);
+    return vec4(out.color.rgb, alpha);
+    //return vec4(vec3(contact_on_decal), 1.0);
+    //return vec4(vec3(diff_depth), 1.0);
+    //return vec4(vec3(normal_depth), 1.0);
     //return vec4(out.color.rgb, 1.0);
 }

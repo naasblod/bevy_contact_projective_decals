@@ -1,10 +1,16 @@
 use bevy::{core_pipeline::prepass::DepthPrepass, pbr::ExtendedMaterial, prelude::*};
 use bevy_contact_projective_decals::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 use rand::{thread_rng, Rng};
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, DecalPlugin, PanOrbitCameraPlugin))
+        .add_plugins((
+            DefaultPlugins,
+            DecalPlugin,
+            PanOrbitCameraPlugin,
+            WorldInspectorPlugin::default(),
+        ))
         .add_systems(Startup, setup)
         .add_systems(Update, move_camera)
         .run();
@@ -86,7 +92,7 @@ fn setup(
                 depth_fade_factor: 8.0,
             },
         }),
-        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0))),
+        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0), Vec3::Y)),
         ..default()
     });
     // camera
