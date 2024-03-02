@@ -38,12 +38,10 @@ fn fragment(in: VertexOutput,
     let v_ray = view.world_position - in.world_position.xyz;
     let model = bevy_pbr::mesh_functions::get_model_matrix(in.instance_index);
     let scale = (model * vec4(1.0, 1.0, 1.0, 0.0)).xyz;
-    //let scale = scale_h.xyz / scale_h.w;
 
     // view vector
     let V = normalize(v_ray);
     let N = in.world_normal;
-    //let T = in.world_tangent.xyz / vec3(custom_material.scale);
     let T = in.world_tangent.xyz / scale;
     let B = in.world_tangent.w * cross(N, T);
     // Transform V from fragment to camera in world space to tangent space.
