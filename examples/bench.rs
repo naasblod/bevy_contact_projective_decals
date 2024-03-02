@@ -1,3 +1,4 @@
+use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 use bevy_screen_diagnostics::{
     Aggregate, ScreenDiagnostics, ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
@@ -18,6 +19,7 @@ fn main() {
             DefaultPlugins,
             DecalPlugin,
             PanOrbitCameraPlugin,
+            EguiPlugin,
             ScreenDiagnosticsPlugin::default(),
             ScreenFrameDiagnosticsPlugin,
         ))
@@ -79,7 +81,7 @@ fn spawn_decals(
                     depth_fade_factor: 8.0,
                 },
             }),
-            mesh: meshes.add(decal_mesh_quad(Vec2::splat(scale))),
+            mesh: meshes.add(decal_mesh_quad(Vec2::splat(scale), Vec3::Y)),
             ..default()
         });
     }

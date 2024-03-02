@@ -52,9 +52,8 @@ fn fragment(in: VertexOutput,
     let diff_depth_abs = abs(diff_depth);
 
 
-    let contact_on_decal = project_onto(V * diff_depth - in.world_position.xyz, in.world_normal);
+    let contact_on_decal = project_onto(V * diff_depth , in.world_normal);
     let normal_depth = length(contact_on_decal);
-
     var uv = in.uv;
     uv = parallaxed_uv(
         normal_depth,
