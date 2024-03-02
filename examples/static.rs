@@ -80,7 +80,7 @@ fn setup(
     });
 
     commands.spawn(DecalBundle {
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
+        transform: Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::splat(4.0)),
         decal_material: decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
             base: StandardMaterial {
                 base_color_texture: Some(asset_server.load("blast.png")),
@@ -92,7 +92,7 @@ fn setup(
                 depth_fade_factor: 8.0,
             },
         }),
-        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0), Vec3::Y)),
+        mesh: meshes.add(decal_mesh_quad(Vec3::Y)),
         ..default()
     });
     // camera

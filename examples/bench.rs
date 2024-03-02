@@ -66,7 +66,7 @@ fn spawn_decals(
         };
         let scale = thread_rng().gen();
         commands.spawn(DecalBundle {
-            transform: Transform::from_xyz(x, 0.0, z),
+            transform: Transform::from_xyz(x, 0.0, z).with_scale(Vec3::splat(scale)),
             decal_material: decal_materials.add(ExtendedMaterial::<
                 StandardMaterial,
                 DecalMaterial,
@@ -81,7 +81,7 @@ fn spawn_decals(
                     depth_fade_factor: 8.0,
                 },
             }),
-            mesh: meshes.add(decal_mesh_quad(Vec2::splat(scale), Vec3::Y)),
+            mesh: meshes.add(decal_mesh_quad(Vec3::Y)),
             ..default()
         });
     }

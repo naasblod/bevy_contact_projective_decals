@@ -36,11 +36,13 @@ fn fragment(in: VertexOutput,
     @builtin(front_facing) is_front: bool) -> @location(0) vec4<f32> {
 
     let v_ray = view.world_position - in.world_position.xyz;
+    let model = bevy_pbr::mesh_functions::get_model_matrix(in.instance_index);
+    let scale = (model * vec4(1.0, 1.0, 1.0, 0.0)).xyz;
 
     // view vector
     let V = normalize(v_ray);
     let N = in.world_normal;
-    let T = in.world_tangent.xyz;
+    let T = in.world_tangent.xyz / scale;
     let B = in.world_tangent.w * cross(N, T);
     // Transform V from fragment to camera in world space to tangent space.
     let Vt = vec3(dot(V, T), dot(V, B), dot(V, N));
@@ -52,7 +54,7 @@ fn fragment(in: VertexOutput,
     let diff_depth_abs = abs(diff_depth);
 
 
-    let contact_on_decal = project_onto(V * diff_depth , in.world_normal);
+    let contact_on_decal = project_onto(V * diff_depth, in.world_normal);
     let normal_depth = length(contact_on_decal);
     var uv = in.uv;
     uv = parallaxed_uv(
@@ -60,9 +62,6 @@ fn fragment(in: VertexOutput,
         1.0,
         0u,
         uv,
-        // Flip the direction of Vt to go toward the surface to make the
-        // parallax mapping algorithm easier to understand and reason
-        // about.
         Vt,
     );
 

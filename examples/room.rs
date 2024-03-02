@@ -116,7 +116,7 @@ fn setup(
                 depth_fade_factor: 8.0,
             },
         }),
-        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0), Vec3::Y)),
+        mesh: meshes.add(decal_mesh_quad(Vec3::Y)),
         ..default()
     });
 
@@ -133,7 +133,7 @@ fn setup(
                 depth_fade_factor: 8.0,
             },
         }),
-        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0), Vec3::X)),
+        mesh: meshes.add(decal_mesh_quad(Vec3::X)),
         ..default()
     });
 
@@ -150,7 +150,7 @@ fn setup(
                 depth_fade_factor: 8.0,
             },
         }),
-        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0), -Vec3::X)),
+        mesh: meshes.add(decal_mesh_quad(-Vec3::X)),
         ..default()
     });
 
@@ -167,7 +167,7 @@ fn setup(
                 depth_fade_factor: 8.0,
             },
         }),
-        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0), -Vec3::Z)),
+        mesh: meshes.add(decal_mesh_quad(-Vec3::Z)),
         ..default()
     });
 
@@ -184,7 +184,7 @@ fn setup(
                 depth_fade_factor: 8.0,
             },
         }),
-        mesh: meshes.add(decal_mesh_quad(Vec2::splat(1.0), Vec3::Z)),
+        mesh: meshes.add(decal_mesh_quad(Vec3::Z)),
         ..default()
     });
 
