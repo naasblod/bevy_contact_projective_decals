@@ -70,7 +70,7 @@ fn decalize(in: VertexOutput, is_front: bool, depth_fade_factor: f32) -> DecalIn
         Vt,
     );
 
-    var alpha = clamp(1.0 - normal_depth * custom_material.depth_fade_factor, 0.0, 1.0);
+    var alpha = clamp(1.0 - normal_depth * depth_fade_factor, 0.0, 1.0);
     return DecalInformation(uv, vec4(in.world_position.xyz + V * diff_depth_abs, normal_depth), alpha);
     //return vec4(out.color.rgb, alpha);
 }
