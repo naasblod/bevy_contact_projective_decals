@@ -28,17 +28,20 @@ fn main() {
         .add_systems(Update, (spawn_decals, thing_count))
         .run();
 }
+#[derive(Resource)]
+struct DecalHandles {
+    mat_uv: Handle<ExtendedMaterial<StandardMaterial, DecalMaterial>>,
+    mesh: Handle<Mesh>,
+}
 
 #[allow(clippy::too_many_arguments)]
 fn spawn_decals(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut decal_materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
     mut local_timer: Local<Timer>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
     mut spawn: Local<bool>,
+    my_handles: Res<DecalHandles>,
 ) {
     if local_timer.duration() == Duration::ZERO {
         local_timer.set_duration(Duration::from_secs_f32(0.01));
@@ -55,33 +58,11 @@ fn spawn_decals(
     for _ in 0..local_timer.times_finished_this_tick() {
         let x = thread_rng().gen_range(-5.0..5.0);
         let z = thread_rng().gen_range(-5.0..5.0);
-        let decal_str =
-            ["boys.png", "blast.png", "UVCheckerMap01-512.png"].choose(&mut thread_rng());
-        let (r, g, b) = thread_rng().gen();
-
-        let color = if *decal_str.unwrap() == "UVCheckerMap01-512.png" {
-            Color::WHITE
-        } else {
-            Color::rgb_from_array((r, g, b))
-        };
         let scale = thread_rng().gen();
         commands.spawn(DecalBundle {
             transform: Transform::from_xyz(x, 0.0, z).with_scale(Vec3::splat(scale)),
-            decal_material: decal_materials.add(ExtendedMaterial::<
-                StandardMaterial,
-                DecalMaterial,
-            > {
-                base: StandardMaterial {
-                    base_color_texture: Some(asset_server.load(*decal_str.unwrap())),
-                    base_color: color,
-                    alpha_mode: AlphaMode::Blend,
-                    ..default()
-                },
-                extension: DecalMaterial {
-                    depth_fade_factor: 8.0,
-                },
-            }),
-            mesh: meshes.add(decal_mesh_quad(Vec3::Y)),
+            decal_material: my_handles.mat_uv.clone(),
+            mesh: my_handles.mesh.clone(),
             ..default()
         });
     }
@@ -92,7 +73,24 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut decal_materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
+    asset_server: Res<AssetServer>,
 ) {
+    let decal_material = decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
+        base: StandardMaterial {
+            base_color_texture: Some(asset_server.load("UVCheckerMap01-512.png")),
+            base_color: Color::WHITE,
+            alpha_mode: AlphaMode::Blend,
+            ..default()
+        },
+        extension: DecalMaterial {
+            depth_fade_factor: 8.0,
+        },
+    });
+    commands.insert_resource(DecalHandles {
+        mat_uv: decal_material,
+        mesh: meshes.add(decal_mesh_quad(Vec3::Y)),
+    });
     commands.spawn((TextBundle::from_section(
         "Press space to start / stop.\nDrag mouse to pan, scroll to zoom",
         TextStyle {
