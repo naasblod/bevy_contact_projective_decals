@@ -41,7 +41,7 @@ struct DecalInformation {
 fn decalize(in: VertexOutput, is_front: bool, depth_fade_factor: f32) -> DecalInformation {
 
     let v_ray = view.world_position - in.world_position.xyz;
-    let model = bevy_pbr::mesh_functions::get_model_matrix(in.instance_index);
+    let model = bevy_pbr::mesh_functions::get_world_from_local(in.instance_index);
     let scale = (model * vec4(1.0, 1.0, 1.0, 0.0)).xyz;
 
     // view vector

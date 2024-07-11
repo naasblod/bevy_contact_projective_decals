@@ -7,7 +7,7 @@ use bevy::{
     },
     prelude::*,
     render::{
-        mesh::MeshVertexBufferLayout,
+        mesh::MeshVertexBufferLayoutRef,
         render_resource::{
             AsBindGroup, CompareFunction, RenderPipelineDescriptor, ShaderRef,
             SpecializedMeshPipelineError,
@@ -31,6 +31,7 @@ impl Plugin for DecalPlugin {
 pub fn decal_mesh_quad(normal: Vec3) -> Mesh {
     Rectangle::from_size(Vec2::ONE)
         .mesh()
+        .build()
         .rotated_by(Quat::from_rotation_arc(Vec3::Z, normal))
         .with_generated_tangents()
         .unwrap()
@@ -57,7 +58,7 @@ impl MaterialExtension for DecalMaterial {
     fn specialize(
         _pipeline: &MaterialExtensionPipeline,
         descriptor: &mut RenderPipelineDescriptor,
-        _layout: &MeshVertexBufferLayout,
+        _layout: &MeshVertexBufferLayoutRef,
         _key: MaterialExtensionKey<Self>,
     ) -> Result<(), SpecializedMeshPipelineError> {
         if let Some(label) = &mut descriptor.label {

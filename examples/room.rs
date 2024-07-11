@@ -108,7 +108,7 @@ fn setup(
         decal_material: decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
             base: StandardMaterial {
                 base_color_texture: Some(asset_server.load("blast.png")),
-                base_color: Color::RED,
+                base_color: Color::Srgba(Srgba::RED),
                 alpha_mode: AlphaMode::Blend,
                 ..default()
             },
@@ -125,7 +125,7 @@ fn setup(
         decal_material: decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
             base: StandardMaterial {
                 base_color_texture: Some(asset_server.load("blast.png")),
-                base_color: Color::RED,
+                base_color: Color::Srgba(Srgba::RED),
                 alpha_mode: AlphaMode::Blend,
                 ..default()
             },
@@ -142,7 +142,7 @@ fn setup(
         decal_material: decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
             base: StandardMaterial {
                 base_color_texture: Some(asset_server.load("blast.png")),
-                base_color: Color::RED,
+                base_color: Color::Srgba(Srgba::RED),
                 alpha_mode: AlphaMode::Blend,
                 ..default()
             },
@@ -159,7 +159,7 @@ fn setup(
         decal_material: decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
             base: StandardMaterial {
                 base_color_texture: Some(asset_server.load("blast.png")),
-                base_color: Color::RED,
+                base_color: Color::Srgba(Srgba::RED),
                 alpha_mode: AlphaMode::Blend,
                 ..default()
             },
@@ -176,7 +176,7 @@ fn setup(
         decal_material: decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
             base: StandardMaterial {
                 base_color_texture: Some(asset_server.load("blast.png")),
-                base_color: Color::RED,
+                base_color: Color::Srgba(Srgba::RED),
                 alpha_mode: AlphaMode::Blend,
                 ..default()
             },
