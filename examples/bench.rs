@@ -12,7 +12,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_contact_projective_decals::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};
-use rand::{seq::SliceRandom, thread_rng, Rng};
+use rand::{thread_rng, Rng};
 fn main() {
     App::new()
         .add_plugins((
