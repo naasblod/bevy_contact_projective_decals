@@ -12,9 +12,15 @@ fn main() {
             WorldInspectorPlugin::default(),
         ))
         .add_systems(Startup, setup)
-        .add_systems(Update, move_camera)
+        .add_systems(Update, (toggle_light_type, move_camera))
         .run();
 }
+enum LightType {
+    Point,
+    Spot,
+}
+#[derive(Component)]
+struct MyLight(pub LightType);
 
 fn move_camera(
     mut query: Query<&mut Transform, With<Camera>>,
@@ -25,6 +31,50 @@ fn move_camera(
         if input.pressed(KeyCode::KeyA) {
             transform.translation.x += 1.0 * time.delta_seconds();
         }
+    }
+}
+
+fn toggle_light_type(
+    mut commands: Commands,
+    query: Query<(Entity, &MyLight)>,
+    input: Res<ButtonInput<KeyCode>>,
+) {
+    if input.just_pressed(KeyCode::Space) {
+        let (entity, light) = query.single();
+        match light.0 {
+            LightType::Point => {
+                commands.spawn((
+                    SpotLightBundle {
+                        spot_light: SpotLight {
+                            shadows_enabled: true,
+                            intensity: 5000000.0,
+                            ..Default::default()
+                        },
+                        transform: Transform::from_xyz(0.0, 1.8, 4.0),
+                        ..Default::default()
+                    },
+                    MyLight(LightType::Spot),
+                ));
+            }
+            LightType::Spot => {
+                commands.spawn((
+                    PointLightBundle {
+                        point_light: PointLight {
+                            intensity: 1000000.0,
+                            range: 60.0,
+                            radius: 60.0,
+                            shadows_enabled: true,
+                            ..default()
+                        },
+                        transform: Transform::from_xyz(2.0, 4.0, 4.0),
+                        ..default()
+                    },
+                    MyLight(LightType::Point),
+                ));
+            }
+        };
+
+        commands.entity(entity).despawn_recursive();
     }
 }
 
@@ -66,18 +116,45 @@ fn setup(
             });
         }
     }
-    // light
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
-            intensity: 1000000.0,
-            range: 60.0,
-            radius: 60.0,
-            shadows_enabled: true,
-            ..default()
+
+    commands
+        .spawn((
+            Name::new("root"),
+            NodeBundle {
+                background_color: BackgroundColor(Color::NONE),
+                style: Style {
+                    flex_direction: FlexDirection::Column,
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    align_items: AlignItems::End,
+                    ..default()
+                },
+                ..default()
+            },
+        ))
+        .with_children(|root_children| {
+            root_children.spawn(TextBundle::from_section(
+                "Press space to change lighting.",
+                TextStyle {
+                    font_size: 24.0,
+                    color: Color::Srgba(Srgba::WHITE),
+                    ..default()
+                },
+            ));
+        });
+
+    commands.spawn((
+        MyLight(LightType::Spot),
+        SpotLightBundle {
+            spot_light: SpotLight {
+                shadows_enabled: true,
+                intensity: 5000000.0,
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(0.0, 1.8, 4.0),
+            ..Default::default()
         },
-        transform: Transform::from_xyz(2.0, 4.0, 4.0),
-        ..default()
-    });
+    ));
 
     commands.spawn(DecalBundle {
         transform: Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::splat(4.0)),
