@@ -3,7 +3,7 @@ use bevy::{
     pbr::{ExtendedMaterial, NotShadowCaster, NotShadowReceiver},
     prelude::*,
 };
-use bevy_contact_projective_decals::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};
+use bevy_contact_projective_decals::{decal_mesh_quad,  DecalMaterial, DecalPlugin};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 fn main() {
@@ -22,7 +22,7 @@ fn move_camera(
 ) {
     for mut transform in &mut query {
         if input.pressed(KeyCode::KeyA) {
-            transform.translation.x += 1.0 * time.delta_seconds();
+            transform.translation.x += 1.0 * time.delta_secs();
         }
     }
 }

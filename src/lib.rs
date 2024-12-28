@@ -33,4 +33,4 @@
 //! });
 //! ```
 mod decal;
-pub use decal::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};
+pub use decal::{decal_mesh_quad, DecalMaterialExtension, DecalMeshMaterial3d, DecalMaterial, DecalPlugin};
