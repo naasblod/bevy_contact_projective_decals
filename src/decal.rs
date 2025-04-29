@@ -77,7 +77,7 @@ impl MaterialExtension for DecalMaterial {
         if let Some(label) = &mut descriptor.label {
             *label = format!("decal_{}", *label).into();
         }
-        if let Some(ref mut depth) = &mut descriptor.depth_stencil {
+        if let Some(  depth) = &mut descriptor.depth_stencil {
             depth.depth_compare = CompareFunction::Always;
         }
 
