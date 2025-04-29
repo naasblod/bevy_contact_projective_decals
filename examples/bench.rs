@@ -1,8 +1,6 @@
 use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
-use bevy_screen_diagnostics::{
-    Aggregate, ScreenDiagnostics, ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
-};
+ 
 use std::time::Duration;
 
 use bevy::{
@@ -11,7 +9,7 @@ use bevy::{
     pbr::ExtendedMaterial,
     prelude::*,
 };
-use bevy_contact_projective_decals::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};
+use bevy_contact_projective_decals::{decal_mesh_quad,  DecalMaterial, DecalPlugin};
 use rand::{thread_rng, Rng};
 fn main() {
     App::new()
@@ -20,8 +18,7 @@ fn main() {
             DecalPlugin,
             PanOrbitCameraPlugin,
             EguiPlugin,
-            ScreenDiagnosticsPlugin::default(),
-            ScreenFrameDiagnosticsPlugin,
+            
         ))
         .register_diagnostic(Diagnostic::new(DECAL_COUNT))
         .add_systems(Startup, (setup, setup_diagnostic))

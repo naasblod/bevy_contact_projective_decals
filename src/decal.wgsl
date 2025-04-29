@@ -62,12 +62,16 @@ fn decalize(in: VertexOutput, is_front: bool, depth_fade_factor: f32) -> DecalIn
     let contact_on_decal = project_onto(V * diff_depth, in.world_normal);
     let normal_depth = length(contact_on_decal);
     var uv = in.uv;
+
+    let material_bind_group_slot = 0u;
+
     uv = parallaxed_uv(
         normal_depth,
         1.0,
         0u,
         uv,
         Vt,
+        material_bind_group_slot
     );
 
     var alpha = clamp(1.0 - normal_depth * depth_fade_factor, 0.0, 1.0);

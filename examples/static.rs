@@ -1,5 +1,6 @@
-use bevy::{core_pipeline::prepass::DepthPrepass, pbr::ExtendedMaterial, prelude::*};
-use bevy_contact_projective_decals::{decal_mesh_quad, DecalBundle, DecalMaterial, DecalPlugin};
+use bevy_contact_projective_decals::DecalMaterialExtension;
+use bevy::{core_pipeline::prepass::DepthPrepass, pbr::{ExtendedMaterial, NotShadowCaster, NotShadowReceiver}, prelude::*};
+use bevy_contact_projective_decals::{decal_mesh_quad, DecalMaterial,   DecalPlugin};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 use rand::{thread_rng, Rng};
@@ -29,7 +30,7 @@ fn move_camera(
 ) {
     for mut transform in &mut query {
         if input.pressed(KeyCode::KeyA) {
-            transform.translation.x += 1.0 * time.delta_seconds();
+            transform.translation.x += 1.0 * time.delta_secs();
         }
     }
 }
@@ -44,31 +45,34 @@ fn toggle_light_type(
         match light.0 {
             LightType::Point => {
                 commands.spawn((
-                    SpotLightBundle {
-                        spot_light: SpotLight {
+
+                    SpotLight {
                             shadows_enabled: true,
                             intensity: 5000000.0,
                             ..Default::default()
                         },
-                        transform: Transform::from_xyz(0.0, 1.8, 4.0),
-                        ..Default::default()
-                    },
+
+                    Transform::from_xyz(0.0, 1.8, 4.0),
+
+
+                  
                     MyLight(LightType::Spot),
                 ));
             }
             LightType::Spot => {
                 commands.spawn((
-                    PointLightBundle {
-                        point_light: PointLight {
+                    PointLight {
                             intensity: 1000000.0,
                             range: 60.0,
                             radius: 60.0,
                             shadows_enabled: true,
                             ..default()
                         },
-                        transform: Transform::from_xyz(2.0, 4.0, 4.0),
-                        ..default()
-                    },
+
+                   Transform::from_xyz(2.0, 4.0, 4.0),
+
+
+                    
                     MyLight(LightType::Point),
                 ));
             }
@@ -86,12 +90,19 @@ fn setup(
     mut decal_materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, DecalMaterial>>>,
     asset_server: Res<AssetServer>,
 ) {
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Rectangle::new(10.0, 10.0)),
-        material: materials.add(Color::WHITE),
-        transform: Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-        ..default()
-    });
+    commands.spawn((
+
+        Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+
+        Visibility::default(),
+
+
+        Mesh3d( meshes.add(Rectangle::new(10.0, 10.0)) ) ,
+        MeshMaterial3d( materials.add(Color::WHITE)   ),
+
+
+
+    ));
 
     let num_obs = 10;
     for i in 0..num_obs {
@@ -108,76 +119,112 @@ fn setup(
                 rotation_vec.normalize_or_zero(),
                 (rotation as f32).to_radians(),
             ));
-            commands.spawn(PbrBundle {
-                mesh: meshes.add(Cuboid::new(0.6, 0.6, 0.6)),
-                material: materials.add(Color::WHITE),
+            commands.spawn(
+
+
+                (
+
+
                 transform,
-                ..default()
-            });
+                Visibility::default(),
+
+
+                Mesh3d( meshes.add(Cuboid::new(0.6, 0.6, 0.6)) ) ,
+                MeshMaterial3d( materials.add(Color::WHITE)   ),
+
+
+
+              )
+
+
+
+                );
         }
     }
 
     commands
         .spawn((
             Name::new("root"),
-            NodeBundle {
-                background_color: BackgroundColor(Color::NONE),
-                style: Style {
-                    flex_direction: FlexDirection::Column,
+
+
+            Node {
+                  flex_direction: FlexDirection::Column,
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
                     align_items: AlignItems::End,
                     ..default()
-                },
-                ..default()
+
             },
+            BackgroundColor(Color::NONE),
+
+ 
         ))
         .with_children(|root_children| {
-            root_children.spawn(TextBundle::from_section(
-                "Press space to change lighting.",
-                TextStyle {
-                    font_size: 24.0,
-                    color: Color::Srgba(Srgba::WHITE),
-                    ..default()
-                },
-            ));
+            root_children.spawn((
+
+
+                Text::new(  "Press space to change lighting."   ),
+
+                TextFont::from_font_size(24.0),
+                TextColor::WHITE,
+
+                ));
         });
 
     commands.spawn((
         MyLight(LightType::Spot),
-        SpotLightBundle {
-            spot_light: SpotLight {
+
+        SpotLight {
                 shadows_enabled: true,
                 intensity: 5000000.0,
                 ..Default::default()
             },
-            transform: Transform::from_xyz(0.0, 1.8, 4.0),
-            ..Default::default()
-        },
+        Transform::from_xyz(0.0, 1.8, 4.0),
+
+
+        
     ));
 
-    commands.spawn(DecalBundle {
-        transform: Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::splat(4.0)),
-        decal_material: decal_materials.add(ExtendedMaterial::<StandardMaterial, DecalMaterial> {
-            base: StandardMaterial {
-                base_color_texture: Some(asset_server.load("blast.png")),
-                base_color: Color::Srgba(Srgba::RED),
-                alpha_mode: AlphaMode::Blend,
-                ..default()
-            },
-            extension: DecalMaterial {
-                depth_fade_factor: 8.0,
-            },
-        }),
-        mesh: meshes.add(decal_mesh_quad(Vec3::Y)),
-        ..default()
-    });
+    commands.spawn(
+
+
+
+        (
+            Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::splat(4.0)),
+            MeshMaterial3d (
+
+                    decal_materials.add(DecalMaterialExtension {
+                        base: StandardMaterial {
+                            base_color_texture: Some(asset_server.load("blast.png")),
+                            base_color: Color::Srgba(Srgba::RED),
+                            alpha_mode: AlphaMode::Blend,
+                            ..default()
+                        },
+                        extension: DecalMaterial {
+                            depth_fade_factor: 8.0,
+                        },
+                    })
+
+               ),
+             Mesh3d( meshes.add(decal_mesh_quad(Vec3::Y)) ),
+
+             Visibility::default(),
+             NotShadowCaster, 
+             NotShadowReceiver,
+
+
+
+
+
+        )
+
+        );
     // camera
     commands.spawn((
-        Camera3dBundle {
-            transform: Transform::from_xyz(2.0, 9.5, 2.5).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        },
+
+        Camera3d::default(),
+         Transform::from_xyz(2.0, 9.5, 2.5).looking_at(Vec3::ZERO, Vec3::Y),
+       
         PanOrbitCamera::default(),
         DepthPrepass,
     ));
